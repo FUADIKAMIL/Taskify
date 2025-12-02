@@ -5,7 +5,7 @@ import (
     "net/http"
     "strings"
 
-    "github.com/yourname/taskify/pkg/auth"
+    "github.com/FUADIKAMIL/taskify/pkg/auth"
 )
 
 type ctxKey string

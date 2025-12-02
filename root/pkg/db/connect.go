@@ -8,22 +8,44 @@ import (
     _ "github.com/lib/pq"
 )
 
-func GetDSNFromEnv() string {
-    host := os.Getenv("DB_HOST")
-    port := os.Getenv("DB_PORT")
-    user := os.Getenv("DB_USER")
-    pass := os.Getenv("DB_PASSWORD")
-    name := os.Getenv("DB_NAME")
-    return fmt.Sprintf("host=%s port=%s user=%s password=%s dbname=%s sslmode=disable", host, port, user, pass, name)
+type Config struct {
+    Host     string
+    Port     string
+    User     string
+    Password string
+    DBName   string
 }
 
-func Connect(dsn string) (*sql.DB, error) {
-    dbConn, err := sql.Open("postgres", dsn)
-    if err != nil {
-        return nil, err
+func LoadConfigFromEnv() Config {
+    return Config{
+        Host:     os.Getenv("DB_HOST"),
+        Port:     os.Getenv("DB_PORT"),
+        User:     os.Getenv("DB_USER"),
+        Password: os.Getenv("DB_PASSWORD"),
+        DBName:   os.Getenv("DB_NAME"),
     }
-    if err := dbConn.Ping(); err != nil {
-        return nil, err
+}
+
+func BuildDSN(cfg Config) string {
+    return fmt.Sprintf(
+        "host=%s port=%s user=%s password=%s dbname=%s sslmode=disable",
+        cfg.Host,
+        cfg.Port,
+        cfg.User,
+        cfg.Password,
+        cfg.DBName,
+    )
+}
+
+func Connect(driver string) func(string) (*sql.DB, error) {
+    return func(dsn string) (*sql.DB, error) {
+        dbConn, err := sql.Open(driver, dsn)
+        if err != nil {
+            return nil, err
+        }
+        if err := dbConn.Ping(); err != nil {
+            return nil, err
+        }
+        return dbConn, nil
     }
-    return dbConn, nil
 }

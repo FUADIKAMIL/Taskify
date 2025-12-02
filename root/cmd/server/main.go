@@ -7,44 +7,63 @@ import (
 
     "github.com/joho/godotenv"
 
-    "github.com/yourname/taskify/internal/handler"
-    "github.com/yourname/taskify/internal/repository"
-    "github.com/yourname/taskify/internal/router"
-    "github.com/yourname/taskify/internal/service"
-    "github.com/yourname/taskify/pkg/db"
+    "github.com/FUADIKAMIL/taskify/internal/handler"
+    "github.com/FUADIKAMIL/taskify/internal/repository"
+    "github.com/FUADIKAMIL/taskify/internal/router"
+    "github.com/FUADIKAMIL/taskify/internal/service"
+    "github.com/FUADIKAMIL/taskify/pkg/db"
 )
 
 func main() {
     if err := godotenv.Load(); err != nil {
-        log.Println(".env not loaded, rely on environment variables")
+        log.Println(".env gagal dimuat!")
     }
 
-    dsn := db.GetDSNFromEnv()
-    dbConn, err := db.Connect(dsn)
+    
+    cfg := db.LoadConfigFromEnv()
+
+    dsn := db.BuildDSN(cfg)
+
+    connect := db.Connect("postgres")
+
+    dbConn, err := connect(dsn)
     if err != nil {
-        log.Fatalf("db connect: %v", err)
+        log.Fatalf("db connect error: %v", err)
     }
     defer dbConn.Close()
 
-    // repositories
+    
     userRepo := repository.NewUserRepo(dbConn)
     taskRepo := repository.NewTaskRepo(dbConn)
 
-    // services
+    
     authSvc := service.NewAuthService(userRepo)
     taskSvc := service.NewTaskService(taskRepo)
 
-    // handlers
-    authHandler := handler.NewAuthHandler(authSvc)
-    taskHandler := handler.NewTaskHandler(taskSvc)
+    
+    authHandlers := router.AuthHandlers{
+        Register: handler.RegisterHandler(authSvc),
+        Login:    handler.LoginHandler(authSvc),
+    }
 
-    // router
-    r := router.NewRouter(authHandler, taskHandler)
+    taskHandlers := router.TaskHandlers{
+        GetAll:  handler.ListTaskHandler(taskSvc),
+        Create:  handler.CreateTaskHandler(taskSvc),
+        GetOne:  handler.GetOneTaskHandler(taskSvc),
+        Update:  handler.UpdateTaskHandler(taskSvc),
+        Delete:  handler.DeleteTaskHandler(taskSvc),
+        Toggle:  handler.ToggleTaskHandler(taskSvc),
+    }
 
+    
+    r := router.NewRouter(authHandlers, taskHandlers)
+
+    
     port := os.Getenv("PORT")
     if port == "" {
         port = "8080"
     }
+
     log.Printf("server running on :%s", port)
     log.Fatal(http.ListenAndServe(":"+port, r))
 }

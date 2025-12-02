@@ -1,4 +1,4 @@
-module github.com/yourname/taskify
+module github.com/FUADIKAMIL/taskify
 
 go 1.20
 

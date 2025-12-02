@@ -4,13 +4,9 @@ import (
     "context"
     "time"
 
-    "github.com/yourname/taskify/internal/model"
-    "github.com/yourname/taskify/internal/repository"
+    "github.com/FUADIKAMIL/taskify/internal/model"
+    "github.com/FUADIKAMIL/taskify/internal/repository"
 )
-
-type TaskService struct{ repo *repository.TaskRepo }
-
-func NewTaskService(r *repository.TaskRepo) *TaskService { return &TaskService{repo: r} }
 
 func computeStatus(t model.Task, now time.Time) string {
     if t.Completed {
@@ -22,45 +18,59 @@ func computeStatus(t model.Task, now time.Time) string {
     return "pending"
 }
 
-func (s *TaskService) CreateTask(ctx context.Context, t model.Task) (model.Task, error) {
-    created, err := s.repo.Create(ctx, t)
-    if err != nil {
-        return model.Task{}, err
-    }
-    created.Status = computeStatus(created, time.Now())
-    return created, nil
+type TaskService struct {
+    CreateTask func(ctx context.Context, t model.Task) (model.Task, error)
+    GetAllTasks func(ctx context.Context, userID int64) ([]model.Task, error)
+    GetTask func(ctx context.Context, id, userID int64) (model.Task, error)
+    UpdateTask func(ctx context.Context, t model.Task) (model.Task, error)
+    DeleteTask func(ctx context.Context, id, userID int64) error
 }
 
-func (s *TaskService) GetAllTasks(ctx context.Context, userID int64) ([]model.Task, error) {
-    list, err := s.repo.GetAllByUser(ctx, userID)
-    if err != nil {
-        return nil, err
-    }
-    now := time.Now()
-    for i := range list {
-        list[i].Status = computeStatus(list[i], now)
-    }
-    return list, nil
-}
+func NewTaskService(repo *repository.TaskRepo) *TaskService {
 
-func (s *TaskService) GetTask(ctx context.Context, id, userID int64) (model.Task, error) {
-    t, err := s.repo.GetByIDAndUser(ctx, id, userID)
-    if err != nil {
-        return model.Task{}, err
-    }
-    t.Status = computeStatus(t, time.Now())
-    return t, nil
-}
+    return &TaskService{
 
-func (s *TaskService) UpdateTask(ctx context.Context, t model.Task) (model.Task, error) {
-    updated, err := s.repo.Update(ctx, t)
-    if err != nil {
-        return model.Task{}, err
-    }
-    updated.Status = computeStatus(updated, time.Now())
-    return updated, nil
-}
+        CreateTask: func(ctx context.Context, t model.Task) (model.Task, error) {
+            created, err := repo.Create(ctx, t)
+            if err != nil {
+                return model.Task{}, err
+            }
+            created.Status = computeStatus(created, time.Now())
+            return created, nil
+        },
 
-func (s *TaskService) DeleteTask(ctx context.Context, id, userID int64) error {
-    return s.repo.Delete(ctx, id, userID)
+        GetAllTasks: func(ctx context.Context, userID int64) ([]model.Task, error) {
+            list, err := repo.GetAllByUser(ctx, userID)
+            if err != nil {
+                return nil, err
+            }
+            now := time.Now()
+            for i := range list {
+                list[i].Status = computeStatus(list[i], now)
+            }
+            return list, nil
+        },
+
+        GetTask: func(ctx context.Context, id, userID int64) (model.Task, error) {
+            t, err := repo.GetByIDAndUser(ctx, id, userID)
+            if err != nil {
+                return model.Task{}, err
+            }
+            t.Status = computeStatus(t, time.Now())
+            return t, nil
+        },
+
+        UpdateTask: func(ctx context.Context, t model.Task) (model.Task, error) {
+            updated, err := repo.Update(ctx, t)
+            if err != nil {
+                return model.Task{}, err
+            }
+            updated.Status = computeStatus(updated, time.Now())
+            return updated, nil
+        },
+
+        DeleteTask: func(ctx context.Context, id, userID int64) error {
+            return repo.Delete(ctx, id, userID)
+        },
+    }
 }
