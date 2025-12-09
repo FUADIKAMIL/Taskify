@@ -1,64 +1,399 @@
 <!doctype html>
-<html lang="en">
+<html lang="id">
 <head>
   <meta charset="utf-8">
-  <title>Taskify</title>
+  <title>Taskify - Task Manager</title>
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    :root {
+      --primary: #6366f1;
+      --primary-dark: #4f46e5;
+      --success: #10b981;
+      --danger: #ef4444;
+      --warning: #f59e0b;
+      --bg-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    }
+    
+    body {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      min-height: 100vh;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+    
+    .main-container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 2rem;
+    }
+    
+    .header-card {
+      background: rgba(255, 255, 255, 0.95);
+      backdrop-filter: blur(10px);
+      border-radius: 20px;
+      padding: 2rem;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+      margin-bottom: 2rem;
+    }
+    
+    .app-title {
+      font-size: 2.5rem;
+      font-weight: 700;
+      background: var(--bg-gradient);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      margin: 0;
+    }
+    
+    .auth-box {
+      background: rgba(255, 255, 255, 0.95);
+      backdrop-filter: blur(10px);
+      border-radius: 15px;
+      padding: 1.5rem;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+      margin-bottom: 2rem;
+    }
+    
+    .btn-gradient {
+      background: var(--bg-gradient);
+      border: none;
+      color: white;
+      font-weight: 600;
+      padding: 0.6rem 1.5rem;
+      border-radius: 10px;
+      transition: all 0.3s;
+    }
+    
+    .btn-gradient:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 10px 25px rgba(102, 126, 234, 0.4);
+      color: white;
+    }
+    
+    .task-card {
+      background: white;
+      border-radius: 15px;
+      padding: 1.5rem;
+      margin-bottom: 1rem;
+      box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+      transition: all 0.3s;
+      border-left: 4px solid var(--primary);
+    }
+    
+    .task-card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 15px 35px rgba(0,0,0,0.2);
+    }
+    
+    .task-card.completed {
+      border-left-color: var(--success);
+      opacity: 0.8;
+    }
+    
+    .task-card.overdue {
+      border-left-color: var(--danger);
+    }
+    
+    .task-title {
+      font-size: 1.3rem;
+      font-weight: 600;
+      color: #1f2937;
+      margin-bottom: 0.5rem;
+    }
+    
+    .task-content {
+      color: #6b7280;
+      margin-bottom: 1rem;
+      line-height: 1.6;
+    }
+    
+    .task-meta {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      font-size: 0.9rem;
+      color: #9ca3af;
+    }
+    
+    .status-badge {
+      padding: 0.4rem 0.8rem;
+      border-radius: 20px;
+      font-size: 0.85rem;
+      font-weight: 600;
+      text-transform: uppercase;
+    }
+    
+    .status-pending {
+      background: #dbeafe;
+      color: #1e40af;
+    }
+    
+    .status-completed {
+      background: #d1fae5;
+      color: #065f46;
+    }
+    
+    .status-overdue {
+      background: #fee2e2;
+      color: #991b1b;
+    }
+    
+    .task-actions {
+      display: flex;
+      gap: 0.5rem;
+      flex-wrap: wrap;
+    }
+    
+    .btn-icon {
+      padding: 0.5rem 1rem;
+      border-radius: 8px;
+      font-size: 0.9rem;
+      font-weight: 500;
+      transition: all 0.2s;
+      border: 2px solid transparent;
+    }
+    
+    .btn-edit {
+      background: #eff6ff;
+      color: #1e40af;
+      border-color: #bfdbfe;
+    }
+    
+    .btn-edit:hover {
+      background: #dbeafe;
+      color: #1e3a8a;
+    }
+    
+    .btn-delete {
+      background: #fef2f2;
+      color: #dc2626;
+      border-color: #fecaca;
+    }
+    
+    .btn-delete:hover {
+      background: #fee2e2;
+      color: #991b1b;
+    }
+    
+    .btn-toggle {
+      background: #f0fdf4;
+      color: #15803d;
+      border-color: #bbf7d0;
+    }
+    
+    .btn-toggle:hover {
+      background: #dcfce7;
+      color: #166534;
+    }
+    
+    .modal-content {
+      border-radius: 20px;
+      border: none;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+    }
+    
+    .modal-header {
+      background: var(--bg-gradient);
+      color: white;
+      border-radius: 20px 20px 0 0;
+      padding: 1.5rem;
+    }
+    
+    .modal-header .btn-close {
+      filter: brightness(0) invert(1);
+    }
+    
+    .form-control, .form-select {
+      border-radius: 10px;
+      border: 2px solid #e5e7eb;
+      padding: 0.7rem;
+      transition: all 0.3s;
+    }
+    
+    .form-control:focus, .form-select:focus {
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+    }
+    
+    .form-label {
+      font-weight: 600;
+      color: #374151;
+      margin-bottom: 0.5rem;
+    }
+    
+    .empty-state {
+      text-align: center;
+      padding: 4rem 2rem;
+      background: white;
+      border-radius: 15px;
+      box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+    }
+    
+    .empty-state i {
+      font-size: 4rem;
+      color: #d1d5db;
+      margin-bottom: 1rem;
+    }
+    
+    .empty-state h4 {
+      color: #6b7280;
+      margin-bottom: 0.5rem;
+    }
+    
+    .empty-state p {
+      color: #9ca3af;
+    }
+    
+    .stats-row {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 1rem;
+      margin-bottom: 2rem;
+    }
+    
+    .stat-card {
+      background: white;
+      border-radius: 15px;
+      padding: 1.5rem;
+      box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
+    
+    .stat-icon {
+      width: 50px;
+      height: 50px;
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.5rem;
+    }
+    
+    .stat-icon.total {
+      background: #eff6ff;
+      color: #1e40af;
+    }
+    
+    .stat-icon.completed {
+      background: #d1fae5;
+      color: #065f46;
+    }
+    
+    .stat-icon.overdue {
+      background: #fee2e2;
+      color: #991b1b;
+    }
+    
+    .stat-content h3 {
+      font-size: 1.8rem;
+      font-weight: 700;
+      margin: 0;
+      color: #1f2937;
+    }
+    
+    .stat-content p {
+      margin: 0;
+      color: #6b7280;
+      font-size: 0.9rem;
+    }
+    
+    @media (max-width: 768px) {
+      .app-title {
+        font-size: 1.8rem;
+      }
+      
+      .task-actions {
+        width: 100%;
+      }
+      
+      .btn-icon {
+        flex: 1;
+      }
+    }
+  </style>
 </head>
-<body class="bg-light">
-<div class="container py-4">
-  <div class="d-flex justify-content-between align-items-center mb-3">
-    <h1>Taskify</h1>
-    <div>
-      <button class="btn btn-outline-secondary me-2" onclick="showAuth('login')">Login</button>
-      <button class="btn btn-outline-primary" onclick="showAuth('register')">Register</button>
+<body>
+<div class="main-container">
+  <div class="header-card">
+    <div class="d-flex justify-content-between align-items-center flex-wrap gap-3">
+      <div>
+        <h1 class="app-title"><i class="fas fa-tasks"></i> Taskify</h1>
+        <p class="text-muted mb-0">Kelola tugas Anda dengan mudah</p>
+      </div>
+      <div class="d-flex gap-2">
+        <button id="btnLogin" class="btn btn-outline-primary" onclick="showAuth('login')">
+          <i class="fas fa-sign-in-alt"></i> Login
+        </button>
+        <button id="btnRegister" class="btn btn-outline-secondary" onclick="showAuth('register')">
+          <i class="fas fa-user-plus"></i> Register
+        </button>
+        <button id="btnLogout" class="btn btn-danger d-none" onclick="logout()">
+          <i class="fas fa-sign-out-alt"></i> Logout
+        </button>
+      </div>
     </div>
   </div>
 
-  <div id="authBox" class="mb-3"></div>
+  <div id="authBox"></div>
 
-  <div class="d-flex justify-content-between align-items-center mb-3">
-    <h3>Tasks</h3>
-    <div>
-      <button id="btnNew" class="btn btn-primary" onclick="openCreate()">New Task</button>
-      <button id="btnLogout" class="btn btn-danger d-none" onclick="logout()">Logout</button>
+  <div id="statsSection" class="stats-row d-none"></div>
+
+  <div class="header-card">
+    <div class="d-flex justify-content-between align-items-center flex-wrap gap-3">
+      <h3 class="mb-0"><i class="fas fa-list-check"></i> Daftar Tugas</h3>
+      <div class="d-flex gap-2">
+        <select id="filterStatus" class="form-select" onchange="applyFilter()" style="width: auto;">
+          <option value="all">Semua</option>
+          <option value="pending">Pending</option>
+          <option value="completed">Selesai</option>
+          <option value="overdue">Terlambat</option>
+        </select>
+        <button id="btnNew" class="btn btn-gradient" onclick="openCreate()">
+          <i class="fas fa-plus"></i> Tugas Baru
+        </button>
+      </div>
     </div>
   </div>
 
-  <div id="tasksList" class="row g-2"></div>
+  <div id="tasksList"></div>
 </div>
 
-<!-- Modal -->
 <div class="modal fade" id="taskModal" tabindex="-1">
-  <div class="modal-dialog">
+  <div class="modal-dialog modal-dialog-centered">
     <form id="taskForm" class="modal-content" onsubmit="saveTask(event)">
       <div class="modal-header">
-        <h5 class="modal-title">Task</h5>
+        <h5 class="modal-title"><i class="fas fa-edit"></i> <span id="modalTitle">Tugas Baru</span></h5>
         <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
       </div>
       <div class="modal-body">
         <input type="hidden" id="taskId">
         <div class="mb-3">
-          <label class="form-label">Title</label>
-          <input id="title" class="form-control" required>
+          <label class="form-label"><i class="fas fa-heading"></i> Judul</label>
+          <input id="title" class="form-control" placeholder="Masukkan judul tugas" required>
         </div>
         <div class="mb-3">
-          <label class="form-label">Content</label>
-          <textarea id="content" class="form-control"></textarea>
+          <label class="form-label"><i class="fas fa-align-left"></i> Deskripsi</label>
+          <textarea id="content" class="form-control" rows="4" placeholder="Deskripsi tugas (opsional)"></textarea>
         </div>
         <div class="mb-3">
-          <label class="form-label">Deadline</label>
+          <label class="form-label"><i class="fas fa-calendar-alt"></i> Tenggat Waktu</label>
           <input id="deadline" type="datetime-local" class="form-control">
         </div>
         <div class="form-check">
           <input id="completed" type="checkbox" class="form-check-input">
-          <label class="form-check-label">Completed</label>
+          <label class="form-check-label">Tandai sebagai selesai</label>
         </div>
       </div>
       <div class="modal-footer">
-        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-        <button class="btn btn-primary">Save</button>
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+          <i class="fas fa-times"></i> Batal
+        </button>
+        <button type="submit" class="btn btn-gradient">
+          <i class="fas fa-save"></i> Simpan
+        </button>
       </div>
     </form>
   </div>
@@ -66,67 +401,342 @@
 
 <script>
 const apiBase = 'http://localhost:8080/api';
+let allTasks = [];
 
-function setToken(t){ localStorage.setItem('taskify_token', t); document.getElementById('btnLogout').classList.remove('d-none'); }
-function getToken(){ return localStorage.getItem('taskify_token'); }
-function logout(){ localStorage.removeItem('taskify_token'); document.getElementById('btnLogout').classList.add('d-none'); document.getElementById('tasksList').innerHTML=''; }
+// Token management
+function setToken(t) {
+  localStorage.setItem('taskify_token', t);
+  document.getElementById('btnLogout').classList.remove('d-none');
+  document.getElementById('btnLogin').classList.add('d-none');
+  document.getElementById('btnRegister').classList.add('d-none');
+  document.getElementById('statsSection').classList.remove('d-none');
+}
 
-async function showAuth(type){
+function getToken() {
+  return localStorage.getItem('taskify_token');
+}
+
+function logout() {
+  localStorage.removeItem('taskify_token');
+  document.getElementById('btnLogout').classList.add('d-none');
+  document.getElementById('btnLogin').classList.remove('d-none');
+  document.getElementById('btnRegister').classList.remove('d-none');
+  document.getElementById('statsSection').classList.add('d-none');
+  document.getElementById('tasksList').innerHTML = '';
+  document.getElementById('authBox').innerHTML = '';
+  allTasks = [];
+}
+
+// Auth functions
+function showAuth(type) {
   const box = document.getElementById('authBox');
-  if(type==='login'){
+  if (type === 'login') {
     box.innerHTML = `
-      <form onsubmit="login(event)" class="row g-2 mb-3">
-        <div class="col-auto"><input id="auser" class="form-control" placeholder="username" required></div>
-        <div class="col-auto"><input id="apass" type="password" class="form-control" placeholder="password" required></div>
-        <div class="col-auto"><button class="btn btn-primary">Login</button></div>
-      </form>`
+      <div class="auth-box">
+        <h5 class="mb-3"><i class="fas fa-sign-in-alt"></i> Login</h5>
+        <form onsubmit="login(event)">
+          <div class="mb-3">
+            <label class="form-label">Username</label>
+            <input id="auser" class="form-control" placeholder="Masukkan username" required>
+          </div>
+          <div class="mb-3">
+            <label class="form-label">Password</label>
+            <input id="apass" type="password" class="form-control" placeholder="Masukkan password" required>
+          </div>
+          <button type="submit" class="btn btn-gradient w-100">
+            <i class="fas fa-sign-in-alt"></i> Login
+          </button>
+        </form>
+      </div>`;
   } else {
     box.innerHTML = `
-      <form onsubmit="register(event)" class="row g-2 mb-3">
-        <div class="col-auto"><input id="ruser" class="form-control" placeholder="username" required></div>
-        <div class="col-auto"><input id="rpass" type="password" class="form-control" placeholder="password" required></div>
-        <div class="col-auto"><button class="btn btn-success">Register</button></div>
-      </form>`
+      <div class="auth-box">
+        <h5 class="mb-3"><i class="fas fa-user-plus"></i> Register</h5>
+        <form onsubmit="register(event)">
+          <div class="mb-3">
+            <label class="form-label">Username</label>
+            <input id="ruser" class="form-control" placeholder="Pilih username" required>
+          </div>
+          <div class="mb-3">
+            <label class="form-label">Password</label>
+            <input id="rpass" type="password" class="form-control" placeholder="Pilih password" required>
+          </div>
+          <button type="submit" class="btn btn-gradient w-100">
+            <i class="fas fa-user-plus"></i> Register
+          </button>
+        </form>
+      </div>`;
   }
 }
 
-async function register(e){ e.preventDefault(); const u=document.getElementById('ruser').value; const p=document.getElementById('rpass').value; const res=await fetch(apiBase+'/auth/register',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({username:u,password:p})}); if(res.status===201){ alert('registered, login now'); showAuth('login'); } else { const j=await res.json(); alert('register failed: '+(j.error||res.statusText)) } }
+async function register(e) {
+  e.preventDefault();
+  const u = document.getElementById('ruser').value;
+  const p = document.getElementById('rpass').value;
+  const res = await fetch(apiBase + '/auth/register', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ username: u, password: p })
+  });
+  if (res.status === 201) {
+    alert('✅ Registrasi berhasil! Silakan login.');
+    showAuth('login');
+  } else {
+    const j = await res.json();
+    alert('❌ Registrasi gagal: ' + (j.error || res.statusText));
+  }
+}
 
-async function login(e){ e.preventDefault(); const u=document.getElementById('auser').value; const p=document.getElementById('apass').value; const res=await fetch(apiBase+'/auth/login',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({username:u,password:p})}); if(res.ok){ const j=await res.json(); setToken(j.token); fetchTasks(); } else { const j=await res.json(); alert('login failed: '+(j.error||res.statusText)) } }
+async function login(e) {
+  e.preventDefault();
+  const u = document.getElementById('auser').value;
+  const p = document.getElementById('apass').value;
+  const res = await fetch(apiBase + '/auth/login', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ username: u, password: p })
+  });
+  if (res.ok) {
+    const j = await res.json();
+    setToken(j.token);
+    document.getElementById('authBox').innerHTML = '';
+    fetchTasks();
+  } else {
+    const j = await res.json();
+    alert('❌ Login gagal: ' + (j.error || res.statusText));
+  }
+}
 
-async function fetchTasks(){ const token = getToken(); if(!token) return; const res = await fetch(apiBase+'/tasks',{headers:{'Authorization':'Bearer '+token}}); if(res.status===401){ alert('unauthorized'); return } const list = await res.json(); renderTasks(list); }
+// Task functions
+async function fetchTasks() {
+  const token = getToken();
+  if (!token) return;
+  
+  const res = await fetch(apiBase + '/tasks', {
+    headers: { 'Authorization': 'Bearer ' + token }
+  });
+  
+  if (res.status === 401) {
+    alert('❌ Sesi habis, silakan login kembali');
+    logout();
+    return;
+  }
+  
+  allTasks = await res.json();
+  updateStats();
+  applyFilter();
+}
 
-function renderTasks(list){ const c=document.getElementById('tasksList'); c.innerHTML=''; if(!list || list.length===0){ c.innerHTML='<p class="text-muted">No tasks yet</p>'; return } list.forEach(t=>{ const deadline = t.deadline? new Date(t.deadline).toLocaleString():'—'; const badgeClass = t.status==='overdue'?'bg-danger':(t.status==='completed'?'bg-success':'bg-secondary'); c.innerHTML += `
-  <div class="col-12">
-    <div class="card">
-      <div class="card-body d-flex justify-content-between align-items-start">
-        <div>
-          <h5>${escapeHtml(t.title)} <span class="badge ${badgeClass}">${t.status}</span></h5>
-          <p class="mb-1">${escapeHtml(t.content||'')}</p>
-          <small class="text-muted">Deadline: ${deadline}</small>
-        </div>
-        <div class="text-end">
-          <button class="btn btn-sm btn-outline-primary mb-1" onclick="editTask(${t.id})">Edit</button>
-          <button class="btn btn-sm btn-outline-danger mb-1" onclick="deleteTask(${t.id})">Delete</button>
-          <button class="btn btn-sm btn-outline-success" onclick="toggle(${t.id})">${t.completed? 'Mark Pending' : 'Mark Done'}</button>
-        </div>
+function updateStats() {
+  const total = allTasks.length;
+  const completed = allTasks.filter(t => t.completed).length;
+  const overdue = allTasks.filter(t => t.status === 'overdue').length;
+  
+  document.getElementById('statsSection').innerHTML = `
+    <div class="stat-card">
+      <div class="stat-icon total">
+        <i class="fas fa-tasks"></i>
+      </div>
+      <div class="stat-content">
+        <h3>${total}</h3>
+        <p>Total Tugas</p>
       </div>
     </div>
-  </div>` }); }
+    <div class="stat-card">
+      <div class="stat-icon completed">
+        <i class="fas fa-check-circle"></i>
+      </div>
+      <div class="stat-content">
+        <h3>${completed}</h3>
+        <p>Selesai</p>
+      </div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-icon overdue">
+        <i class="fas fa-exclamation-circle"></i>
+      </div>
+      <div class="stat-content">
+        <h3>${overdue}</h3>
+        <p>Terlambat</p>
+      </div>
+    </div>
+  `;
+}
 
-function escapeHtml(s){ return String(s).replace(/[&<>"'`=\/]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;','/':'&#x2F;','`':'&#x60;','=':'&#x3D;'}[c];}); }
+function applyFilter() {
+  const filter = document.getElementById('filterStatus').value;
+  let filtered = allTasks;
+  
+  if (filter !== 'all') {
+    filtered = allTasks.filter(t => t.status === filter);
+  }
+  
+  renderTasks(filtered);
+}
 
-function openCreate(){ document.getElementById('taskId').value=''; document.getElementById('title').value=''; document.getElementById('content').value=''; document.getElementById('deadline').value=''; document.getElementById('completed').checked=false; const modal=new bootstrap.Modal(document.getElementById('taskModal')); modal.show(); }
+function renderTasks(list) {
+  const c = document.getElementById('tasksList');
+  
+  if (!list || list.length === 0) {
+    c.innerHTML = `
+      <div class="empty-state">
+        <i class="fas fa-inbox"></i>
+        <h4>Belum ada tugas</h4>
+        <p>Klik "Tugas Baru" untuk membuat tugas pertama Anda</p>
+      </div>`;
+    return;
+  }
+  
+  c.innerHTML = list.map(t => {
+    const deadline = t.deadline ? new Date(t.deadline).toLocaleString('id-ID', {
+      dateStyle: 'medium',
+      timeStyle: 'short'
+    }) : 'Tidak ada tenggat';
+    
+    const statusClass = t.status === 'overdue' ? 'status-overdue' : 
+                       (t.status === 'completed' ? 'status-completed' : 'status-pending');
+    const statusText = t.status === 'overdue' ? 'Terlambat' : 
+                      (t.status === 'completed' ? 'Selesai' : 'Pending');
+    const cardClass = t.completed ? 'completed' : (t.status === 'overdue' ? 'overdue' : '');
+    
+    return `
+      <div class="task-card ${cardClass}">
+        <div class="d-flex justify-content-between align-items-start gap-3 flex-wrap">
+          <div class="flex-grow-1">
+            <div class="task-title">
+              ${escapeHtml(t.title)}
+              <span class="status-badge ${statusClass}">${statusText}</span>
+            </div>
+            ${t.content ? `<div class="task-content">${escapeHtml(t.content)}</div>` : ''}
+            <div class="task-meta">
+              <span><i class="far fa-calendar"></i> ${deadline}</span>
+            </div>
+          </div>
+          <div class="task-actions">
+            <button class="btn btn-icon btn-edit" onclick="editTask(${t.id})">
+              <i class="fas fa-edit"></i> Edit
+            </button>
+            <button class="btn btn-icon btn-toggle" onclick="toggle(${t.id})">
+              <i class="fas ${t.completed ? 'fa-times' : 'fa-check'}"></i> 
+              ${t.completed ? 'Batal' : 'Selesai'}
+            </button>
+            <button class="btn btn-icon btn-delete" onclick="deleteTask(${t.id})">
+              <i class="fas fa-trash"></i> Hapus
+            </button>
+          </div>
+        </div>
+      </div>`;
+  }).join('');
+}
 
-async function saveTask(e){ e.preventDefault(); const id=document.getElementById('taskId').value; const payload={ title: document.getElementById('title').value, content: document.getElementById('content').value, completed: document.getElementById('completed').checked }; const dl=document.getElementById('deadline').value; if(dl) payload.deadline = new Date(dl).toISOString(); const token=getToken(); if(!token){ alert('login first'); return } if(!id){ await fetch(apiBase+'/tasks',{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+token},body:JSON.stringify(payload)}); } else { await fetch(apiBase+'/tasks/'+id,{method:'PUT',headers:{'Content-Type':'application/json','Authorization':'Bearer '+token},body:JSON.stringify(payload)}); } const modal=bootstrap.Modal.getInstance(document.getElementById('taskModal')); modal.hide(); fetchTasks(); }
+function escapeHtml(s) {
+  return String(s).replace(/[&<>"'`=\/]/g, c => ({
+    '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;',
+    "'": '&#39;', '/': '&#x2F;', '`': '&#x60;', '=': '&#x3D;'
+  }[c]));
+}
 
-async function editTask(id){ const token=getToken(); const res=await fetch(apiBase+'/tasks/'+id,{headers:{'Authorization':'Bearer '+token}}); const t=await res.json(); document.getElementById('taskId').value=t.id; document.getElementById('title').value=t.title; document.getElementById('content').value=t.content||''; if(t.deadline){ const dt=new Date(t.deadline); const local=new Date(dt.getTime()-dt.getTimezoneOffset()*60000).toISOString().slice(0,16); document.getElementById('deadline').value=local; } else document.getElementById('deadline').value=''; document.getElementById('completed').checked=t.completed; const modal=new bootstrap.Modal(document.getElementById('taskModal')); modal.show(); }
+function openCreate() {
+  document.getElementById('modalTitle').textContent = 'Tugas Baru';
+  document.getElementById('taskId').value = '';
+  document.getElementById('title').value = '';
+  document.getElementById('content').value = '';
+  document.getElementById('deadline').value = '';
+  document.getElementById('completed').checked = false;
+  const modal = new bootstrap.Modal(document.getElementById('taskModal'));
+  modal.show();
+}
 
-async function deleteTask(id){ if(!confirm('Delete task?')) return; const token=getToken(); await fetch(apiBase+'/tasks/'+id,{method:'DELETE',headers:{'Authorization':'Bearer '+token}}); fetchTasks(); }
+async function saveTask(e) {
+  e.preventDefault();
+  const id = document.getElementById('taskId').value;
+  const payload = {
+    title: document.getElementById('title').value,
+    content: document.getElementById('content').value,
+    completed: document.getElementById('completed').checked
+  };
+  const dl = document.getElementById('deadline').value;
+  if (dl) payload.deadline = new Date(dl).toISOString();
+  
+  const token = getToken();
+  if (!token) {
+    alert('❌ Silakan login terlebih dahulu');
+    return;
+  }
+  
+  const url = id ? `${apiBase}/tasks/${id}` : `${apiBase}/tasks`;
+  const method = id ? 'PUT' : 'POST';
+  
+  await fetch(url, {
+    method,
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': 'Bearer ' + token
+    },
+    body: JSON.stringify(payload)
+  });
+  
+  const modal = bootstrap.Modal.getInstance(document.getElementById('taskModal'));
+  modal.hide();
+  fetchTasks();
+}
 
-async function toggle(id){ const token=getToken(); await fetch(apiBase+'/tasks/'+id+'/toggle',{method:'PATCH',headers:{'Authorization':'Bearer '+token}}); fetchTasks(); }
+async function editTask(id) {
+  const token = getToken();
+  const res = await fetch(`${apiBase}/tasks/${id}`, {
+    headers: { 'Authorization': 'Bearer ' + token }
+  });
+  const t = await res.json();
+  
+  document.getElementById('modalTitle').textContent = 'Edit Tugas';
+  document.getElementById('taskId').value = t.id;
+  document.getElementById('title').value = t.title;
+  document.getElementById('content').value = t.content || '';
+  
+  if (t.deadline) {
+    const dt = new Date(t.deadline);
+    const local = new Date(dt.getTime() - dt.getTimezoneOffset() * 60000)
+      .toISOString().slice(0, 16);
+    document.getElementById('deadline').value = local;
+  } else {
+    document.getElementById('deadline').value = '';
+  }
+  
+  document.getElementById('completed').checked = t.completed;
+  const modal = new bootstrap.Modal(document.getElementById('taskModal'));
+  modal.show();
+}
 
-document.addEventListener('DOMContentLoaded',()=>{ if(getToken()) document.getElementById('btnLogout').classList.remove('d-none'); fetchTasks(); });
+async function deleteTask(id) {
+  if (!confirm('❓ Yakin ingin menghapus tugas ini?')) return;
+  
+  const token = getToken();
+  await fetch(`${apiBase}/tasks/${id}`, {
+    method: 'DELETE',
+    headers: { 'Authorization': 'Bearer ' + token }
+  });
+  fetchTasks();
+}
+
+async function toggle(id) {
+  const token = getToken();
+  await fetch(`${apiBase}/tasks/${id}/toggle`, {
+    method: 'PATCH',
+    headers: { 'Authorization': 'Bearer ' + token }
+  });
+  fetchTasks();
+}
+
+// Initialize
+document.addEventListener('DOMContentLoaded', () => {
+  if (getToken()) {
+    document.getElementById('btnLogout').classList.remove('d-none');
+    document.getElementById('btnLogin').classList.add('d-none');
+    document.getElementById('btnRegister').classList.add('d-none');
+    document.getElementById('statsSection').classList.remove('d-none');
+    fetchTasks();
+  }
+});
 </script>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
